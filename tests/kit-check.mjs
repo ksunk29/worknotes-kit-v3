@@ -836,3 +836,17 @@ test('힌트 대비: 맥락 질문으로 인터뷰를 열고, 위험한 부분�
   assert.match(read('templates/WORK.md'), /③가장 중요한 설계 선택과 이유, 일부러 만들지 않은 것/);
   assert.match(sec('6-2'), /③가장 중요한 설계 선택과 이유, 일부러 만들지 않은 것과 이유/);
 });
+
+test('새로 만드는 과제: 2-1을 건너뛰고 합류 1에서 유형-9로 단순 버전을 내 기준선으로, 엔진 없는 서비스의 나누는 법', () => {
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  const pr = read('PROMPTS.md');
+  const pb = read('PLAYBOOK.md');
+  const sec = pr.split('**유형-9.')[1];
+  assert.ok(sec, 'PROMPTS.md에 유형-9가 있어야 함');
+  assert.match(sec, /기존 시스템이 없으니 지금 돌아가는 단순 버전을 기준선으로 삼을게/);
+  assert.match(sec, /kit\/skills\/improve-existing\/SKILL\.md 의 2~3번대로/);
+  assert.match(sec, /과제가 품질 향상을 요구하면 ④에서 이 기준선 대비로 4-3·4-4를 씁니다\. 요구하지 않으면 건너뛰고/);
+  assert.match(pb, /2-1\(high\) 기준선:.*기존 것이 없으면 건너뛰고 합류 1에서 유형-9/);
+  assert.match(pb, /새로 만드는 과제\(기존 엔진·시스템 없음\): 2-1은 건너뛰고, fixture는 요구에서 손으로 만든 예시, 3-1은 가장 단순하게 맞는 엔진을 새로 만든다\. 합류 1에서 유형-9\(high\)로 \*\*그 단순 버전을 내 기준선\*\*으로 기록한다/);
+  assert.match(pb, /계산할 엔진이 없는 조회·등록 서비스면 메인은 데이터 모델·API·권한, 화면 세션은 화면을 맡고 계약에 DB 스키마를 더한다/);
+});
