@@ -566,7 +566,7 @@ test('인터뷰 절차: 질문 하나씩 복붙, 영향 큰 순서, 꼬리질문
   for (const s of ['확정', '추가질문', '미확인', '설계 선택']) assert.ok(t.includes(s), `TASK.md 상태: ${s}`);
   const pr = read('PROMPTS.md');
   for (const k of ['**1-2. 인터뷰 시작', '**1-3. 답변 전달', '**1-4.', '**1-5. 미확인 정리', '**1-6. 합의 확인 글']) assert.ok(pr.includes(k), `PROMPTS.md: ${k}`);
-  assert.match(pr, /①만 결과에 미치는 영향이 큰 순서로 질문을 만들어줘\./);
+  assert.match(pr, /처음 1~2개는 답하기 쉬운 맥락 질문\(누가, 어떤 상황에서, 무엇을 결정하려고 쓰나\)으로 열고, 그다음은 결과에 미치는 영향이 큰 순서로/);
   assert.doesNotMatch(pr + read('PLAYBOOK.md'), /최대 6개|본질문 최대/, '질문 개수 상한은 두지 않는다');
   assert.doesNotMatch(pr + read('PLAYBOOK.md'), /20분이 (되면|넘었을)|아직 묻지 않은 질문은 묻지 말고/, '인터뷰 시간 상한은 두지 않는다');
   assert.match(pr, /구현 방법은 묻지 마/);
@@ -810,4 +810,29 @@ test('탐색 보강: 유효해 미발견과 해 없음 구분, 결과 파일 저
   assert.match(rd, /\*\*폴더를 통째로 압축하지 않습니다\.\*\*/);
   assert.match(rd, /git archive --format=zip -o \.\.\/worknotes-kit\.zip HEAD/);
   assert.match(rd, /공개 저장소는 이 묶음으로 새 이력에서 시작합니다/);
+});
+
+test('힌트 대비: 맥락 질문으로 인터뷰를 열고, 위험한 부분과 요구 근거 없는 장치를 점검하며, 서술형에서 일부러 안 만든 것을 말한다', () => {
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  const pr = read('PROMPTS.md');
+  const pb = read('PLAYBOOK.md');
+  const sec = (id) => pr.split(`**${id}.`)[1].split(/\n\*\*(?:\d-\d|막힘-\d+|유형-\d|보조-\d)\./)[0];
+  // 1) 맥락 질문 1~2개로 열고 그다음 영향 큰 순서 (사소한 것부터로 되돌리지 않음)
+  const w = read('skills/work-intake/SKILL.md');
+  assert.match(w, /처음 1~2개는 답하기 쉬운 맥락 질문\(누가, 어떤 상황에서, 무엇을 결정하려고 쓰나\)으로 연다\. 그다음은 결과 영향이 큰 미확인 사항부터/);
+  assert.match(w, /답에서 단서가 나오면 꼬리질문으로 파고든다/);
+  assert.doesNotMatch(w, /사소하고 구체적인 것부터/);
+  assert.ok(w.length < 2500, `work-intake ${w.length}`);
+  assert.match(pb, /1-2\(high\) 인터뷰 시작: 쉬운 맥락 질문 1~2개로 열고, 그다음 영향이 큰 질문부터/);
+  // 2) 위험한 부분과 필요성 점검
+  assert.match(sec('2-2'), /틀리면 크게 깨지는 위험한 부분 2~3개를 계약 절 끝에 적어줘/);
+  assert.match(sec('4-5'), /4\) 필요성: 요구나 시나리오에 근거가 없는 장치\(보호 장치, 권한, 캐시, 재시도, 추상화\)가 있으면 목록으로\. 뺄지는 내가 정할게/);
+  assert.match(sec('5-3'), /요구나 시나리오에 근거가 없는 기능·장치를 표로만 알려줘/);
+  assert.match(pb, /4-5\(high\) \*\*채택 전 점검\*\*:.*요구에 근거 없는 장치/);
+  assert.match(pb, /5-3\(high\) 읽기 전용 교차 점검:.*요구에 근거 없는 기능은 없나/);
+  // 3) 서술형: 일부러 만들지 않은 것
+  assert.match(pb, /3\. 가장 중요한 설계 선택과 이유 한 개, 일부러 만들지 않은 것 한 개/);
+  assert.match(pb, /\| 구조 \| 파일·모듈을 어떻게 나눴고 왜 그렇게 나눴나, 일부러 만들지 않은 것은 무엇이고 왜인가 \|/);
+  assert.match(read('templates/WORK.md'), /③가장 중요한 설계 선택과 이유, 일부러 만들지 않은 것/);
+  assert.match(sec('6-2'), /③가장 중요한 설계 선택과 이유, 일부러 만들지 않은 것과 이유/);
 });
