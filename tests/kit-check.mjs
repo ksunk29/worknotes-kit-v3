@@ -441,7 +441,7 @@ test('v2 스킬·템플릿: 질문 분류, 처음부터의 화면 상태, 로그
 test('v3 PLAYBOOK: 6단계 체크리스트(할 일·끝 신호·설명 노트), 세션 2개, 합류 2번, v2 구조가 남지 않는다', () => {
   const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
   const pb = read('PLAYBOOK.md');
-  const heads = ['## 한 장 요약', '## 0. 시작', '## ① 읽기·인터뷰', '## ② 기준선·계약', '## ③ 첫 연결', '### 합류 1 (75분)', '## ④ 개선·완성', '### 합류 2 = 동결 (145분)', '## ⑤ 검증', '## ⑥ 문서·서술형 준비', '## 서술형', '## 부록 A. 막혔을 때', '## 부록 B.', '## 부록 C.', '## 부록 D. 추론 강도', '## 부록 E.'];
+  const heads = ['## 한 장 요약', '## 0. 시작', '## ① 읽기·인터뷰', '## ② 기준선·계약', '## ③ 첫 연결', '### 합류 1 (75분)', '## ④ 실험·완성 (75–145분) — 이 시험의 중심', '### 합류 2 = 동결 (145분)', '## ⑤ 검증', '## ⑥ 문서·서술형 준비', '## 서술형', '## 부록 A. 막혔을 때', '## 부록 B.', '## 부록 C.', '## 부록 D. 추론 강도', '## 부록 E.'];
   let at = -1;
   for (const h of heads) { const i = pb.indexOf(h); assert.ok(i > at, `PLAYBOOK 순서·존재: ${h}`); at = i; }
   // 단계마다 할 일(☐)과 끝 신호(✔), ①~⑤에는 설명 노트(✎)
@@ -452,10 +452,10 @@ test('v3 PLAYBOOK: 6단계 체크리스트(할 일·끝 신호·설명 노트), 
   }
   assert.match(pb, /\| \*\*메인\*\* \|/);
   assert.match(pb, /\| \*\*화면\*\* \|/);
-  for (const k of ['125분 이후 시작하지 않는다', '55분까지 계약이 안 끝나면', '프론트/백엔드로 나누지 않습니다', '심볼릭 링크', '제출 가능한 상태', '`0.0.0.0`', '화면 세션은 **닫지 않고**', '복사본이나 버전 플래그에서만', '시험 중에는 **이 문서만** 봅니다']) assert.ok(pb.includes(k), `PLAYBOOK.md: ${k}`);
+  for (const k of ['마지막 실험은 **110분까지** 시작한다', '55분까지 계약이 안 끝나면', '프론트/백엔드로 나누지 않습니다', '심볼릭 링크', '제출 가능한 상태', '`0.0.0.0`', '화면 세션은 **닫지 않고**', '복사본이나 버전 플래그에서만', '시험 중에는 **이 문서만** 봅니다']) assert.ok(pb.includes(k), `PLAYBOOK.md: ${k}`);
   assert.doesNotMatch(pb, /\bT[1-4]\b|M·A·B|R 세션|3-g|\b[0-9]-[a-k]\b/, 'v2 구조(세션 4종, T1~T4, 옛 번호)가 남음');
-  assert.ok(pb.trimEnd().split('\n').length <= 200, `PLAYBOOK 길이 ${pb.trimEnd().split('\n').length}줄`);
-  assert.match(read('PRETEST.md'), /2개 이상: 메인과 화면/);
+  assert.ok(pb.trimEnd().split('\n').length <= 240, `PLAYBOOK 길이 ${pb.trimEnd().split('\n').length}줄`);
+  assert.ok(!fs.existsSync(path.join(ROOT, 'PRETEST.md')), 'PRETEST.md는 지웠다(사전 체험 완료)');
   // 체크리스트·README·USAGE
   assert.match(read('checklists/rules-and-security.md'), /브라우저 자동화\(Playwright 등\)는 과제 안내가 허용한 것을 확인한 뒤에만/);
   assert.match(read('checklists/before-submit.md'), /심볼릭 링크가 아닌 실제 파일/);
@@ -465,7 +465,7 @@ test('v3 PLAYBOOK: 6단계 체크리스트(할 일·끝 신호·설명 노트), 
   assert.match(read('USAGE.md'), /`skills\/improve-existing`/);
   const u = read('USAGE.md');
   for (const k of ['시간 배분', '## 1. 공통 시작 절차', '## 4. 막혔을 때', '## 5. 체크리스트', '사전 체험(15분)에서 확인할 것']) assert.ok(!u.includes(k), `USAGE.md에 남은 중복: ${k}`);
-  for (const f of ['README.md', 'USAGE.md', 'PRETEST.md', 'checklists/start-and-progress.md', 'templates/TASK.md', 'templates/WORK.md']) assert.doesNotMatch(read(f), /M·A·B|\bR 세션|3-g|\b[0-9]-[a-k]\b/, `${f}: 옛 번호·세션 이름`);
+  for (const f of ['README.md', 'USAGE.md', 'checklists/start-and-progress.md', 'templates/TASK.md', 'templates/WORK.md']) assert.doesNotMatch(read(f), /M·A·B|\bR 세션|3-g|\b[0-9]-[a-k]\b/, `${f}: 옛 번호·세션 이름`);
 });
 
 test('v3 프롬프트 번호: PLAYBOOK과 PROMPTS가 같은 번호를 쓰고, 모든 프롬프트에 강도가 있으며 값이 같다', () => {
@@ -514,7 +514,7 @@ test('v3 빈칸: 중괄호가 있는 프롬프트에는 "채우기" 줄이 있�
     if (/\{[^}]+\}/.test(code)) { withBraces++; assert.match(body, /채우기:/, `${id}: 채우기 줄 없음`); }
     assert.doesNotMatch(code, /\{(엔진 파일 목록|서비스·화면 파일 목록|임시 경로)\}|(?<!Q)\{번호\}/, `${id}: 파일 목록·포트·DB를 중괄호로 묻는다`);
   }
-  assert.ok(withBraces <= 15, `중괄호가 있는 프롬프트 ${withBraces}개 (늘리지 않는다)`);
+  assert.ok(withBraces <= 16, `중괄호가 있는 프롬프트 ${withBraces}개 (늘리지 않는다)`);
   const sec = (id) => pr.split(`**${id}.`)[1].split(/\n\*\*(?:\d-\d|막힘-\d+|유형-\d|보조-\d)\./)[0];
   assert.match(sec('2-2'), /"담당 파일·세션" 표를 두 행으로/);
   assert.match(sec('3-2'), /"담당 파일·세션" 표의 화면 행/);
@@ -541,7 +541,7 @@ test('v3 서술형 대비: 파일을 볼 수 없다는 전제로 설명 노트·
   assert.match(pr, /\*\*6-3\. 모의 구술\*\*/);
   assert.match(pr, /내가 먼저 답할 테니 답하기 전에는 정답을 알려주지 마/);
   assert.match(pr, /후보는 그대로 쓰지 말고 \*\*내 말로 고쳐\*\*/);
-  assert.match(read('PRETEST.md'), /\| \*\*18\*\* \| \(리허설\)/);
+  assert.match(read('PLAYBOOK.md'), /시험 전에 연습 과제로 이 문서를 처음부터 끝까지 한 번 따라가 봅니다/);
   const h = read('skills/handoff-explain/SKILL.md');
   assert.match(h, /설명 노트는 응시자가 쓴 것이므로 고쳐 쓰지 않고/);
   assert.ok(h.length < 2500, `handoff-explain ${h.length}`);
@@ -573,36 +573,33 @@ test('인터뷰 절차: 질문 하나씩 복붙, 영향 큰 순서, 꼬리질문
   assert.doesNotMatch(w, /https?:\/\//);
 });
 
-test('세션 끊김 대비: 막힘-5 복구 프롬프트, 막혔을 때 행, PRETEST 항목, 실험은 시작할 때 기록', () => {
+test('세션 끊김 대비: 막힘-5 복구 프롬프트, 막혔을 때 행, 실험은 시작할 때 기록', () => {
   const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
   const pb = read('PLAYBOOK.md');
   const pr = read('PROMPTS.md');
   assert.match(pb, /\| 세션이 끊김 \|.*`codex resume`.*막힘-5/);
-  assert.match(read('PRETEST.md'), /`codex resume`\(또는 `--last`\)으로 이전 대화가 이어지는가/);
-  assert.match(pb, /실험을 \*\*시작할 때\*\* `EXPERIMENTS\.md` 카드에 가설·변경 계획을 먼저 적는다/);
+  assert.match(pb, /가설·변경 계획·조건\(입력·시드·시간 제한\)을 카드에 \*\*먼저\*\* 적고\(끊겨도 남게\)/);
   assert.match(pr, /\*\*막힘-5\. 세션이 끊겨 새로 시작했을 때/);
   assert.match(pr, /이전 대화는 없다고 가정하고 파일 기록만으로 상태를 복구해줘\. 코드는 아직 고치지 마\./);
   assert.match(pr, /AGENTS\.md, TASK\.md, WORK\.md, VERIFY\.md, EXPERIMENTS\.md 를 읽고/);
 });
 
-test('PRETEST: 사전 체험 항목은 PRETEST.md 한 곳에만 있고, 다른 문서는 가리키기만 하며, 폴백·프롬프트 번호가 실재한다', () => {
+test('응시 환경 안내 반영: PRETEST.md 삭제, 참조 없음, 확인된 사실(탭 8개·RAM 16GB, 제출 자동 제외, 공개 저장소 clone, MCP, 외부 AI API 금지)', () => {
   const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
-  const pt = read('PRETEST.md');
-  assert.match(pt, /사람이 보는 문서입니다\. 에이전트는 읽지 않습니다\./);
-  assert.doesNotMatch(pt, /https?:\/\//, '외부 주소 없음');
-  const rows = pt.split('\n').filter((l) => /^\| \**\d+\**? \|/.test(l));
-  assert.ok(rows.length >= 18, `항목 수 ${rows.length}`);
-  for (const r of rows) assert.equal(r.split('|').length, 7, `5열 표가 아님: ${r.slice(0, 40)}`);
-  for (const k of ['git clone', '.agents/skills', 'AGENTS.md', '여러 개', '0.0.0.0', 'iframe', 'Playwright', '.md', '심볼릭', 'MCP', 'codex resume', 'git commit']) assert.ok(pt.includes(k), `PRETEST.md: ${k}`);
-  const pr = read('PROMPTS.md');
-  for (const m of pt.matchAll(/(?<![\w-])(\d-\d|막힘-\d+|유형-\d)(?![\d])/g)) assert.ok(pr.includes(`**${m[1]}.`), `PROMPTS.md에 ${m[1]} 없음`);
-  for (const m of pt.matchAll(/`PLAYBOOK\.md` (부록 [A-E])/g)) assert.ok(read('PLAYBOOK.md').includes(`## ${m[1]}.`), `PLAYBOOK.md에 ${m[1]} 없음`);
+  assert.ok(!fs.existsSync(path.join(ROOT, 'PRETEST.md')));
+  for (const f of ['README.md', 'USAGE.md', 'PLAYBOOK.md', 'PROMPTS.md', 'mcp/README.md', 'instructions/AGENTS.md', 'checklists/start-and-progress.md', 'checklists/before-submit.md', 'checklists/rules-and-security.md']) assert.doesNotMatch(read(f), /PRETEST|사전 체험(\(15분\))?에서/, `${f}: PRETEST 참조가 남음`);
   const pb = read('PLAYBOOK.md');
-  assert.match(pb, /`PRETEST\.md`/);
-  assert.match(read('README.md'), /\| `PRETEST\.md` \|.*18개 항목/);
-  assert.match(read('USAGE.md'), /`PRETEST\.md`/);
-  assert.doesNotMatch(read('instructions/AGENTS.md'), /PRETEST/, '사람용 문서는 지침이 참조하지 않는다');
-  for (const f of ['README.md', 'USAGE.md', 'PLAYBOOK.md', 'mcp/README.md']) assert.doesNotMatch(read(f), /사전 체험(\(15분\))?에서/, `${f}: 사전 체험 안내가 PRETEST.md로 옮겨지지 않음`);
+  assert.match(pb, /터미널 탭은 최대 8개, 작업 환경 RAM은 16GB/);
+  assert.match(pb, /제출 수집에서 심볼릭 링크와 `\.git`·`node_modules`·빌드·캐시 폴더는 자동 제외된다/);
+  assert.match(pb, /완료 화면의 "제출 파일 N개 · 크기"로 실제 제출 확인/);
+  assert.match(read('README.md'), /`git clone`으로 가져오는 것은 허용되고, 개인 PC 파일 업로드는 막혀 있습니다/);
+  assert.match(read('README.md'), /`\.agents\/skills` 경로에 쓸 수 있는지는 확인되지 않았습니다/);
+  const mcp = read('mcp/README.md');
+  assert.match(mcp, /MCP 사용은 허용됩니다/);
+  assert.match(mcp, /Codex를 정상 종료\(`\/quit` 또는 `\/exit`\)하고 다시 `codex`로 실행해야 적용됩니다/);
+  assert.match(mcp, /별도 AI 모델 연결과 시험 자료·작업물의 외부 반출 용도로는 쓸 수 없습니다/);
+  assert.match(read('instructions/AGENTS.md'), /결과물에서 외부 AI API·AI 모델을 쓰지 않는다/);
+  assert.doesNotMatch(read('instructions/AGENTS.md') + read('README.md') + pb, /마크다운 미리보기|옆에 미리보기 열기/);
 });
 
 test('시나리오·비기능 요구: TASK.md 두 절(근거 필수 열, 확인 방법 열), 지어내지 않는 문구, 인터뷰·합의 확인·자동 점검과 연결', () => {
@@ -625,20 +622,17 @@ test('시나리오·비기능 요구: TASK.md 두 절(근거 필수 열, 확인 
   assert.doesNotMatch(read('instructions/AGENTS.md'), /시나리오|비기능/, 'AGENTS.md 용량을 늘리지 않는다');
 });
 
-test('추론 강도: PLAYBOOK 부록 D(제안, PRETEST 17번으로 확인, 기본 medium, 1-3은 내리지 않음), PROMPTS 안내, 계약은 extra-high', () => {
+test('추론 강도: PLAYBOOK 부록 D(제안, 응답 시간을 보고 조정, 기본 medium, 1-3은 내리지 않음), PROMPTS 안내, 계약은 extra-high', () => {
   const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
   const pb = read('PLAYBOOK.md');
   const d = pb.slice(pb.indexOf('## 부록 D. 추론 강도'), pb.indexOf('## 부록 E'));
-  assert.match(d, /`PRETEST\.md` 17번으로 먼저 재 본다/);
+  assert.match(d, /처음 몇 번의 응답 시간을 보고 조정한다/);
   assert.match(d, /기본은 medium/);
   assert.match(d, /인터뷰 답변 전달\(1-3\)은 medium보다 내리지 않는다/);
   assert.match(d, /한 단계 올려 다시 요청/);
   assert.match(pb, /번호 뒤 괄호는 추천 추론 강도입니다\(부록 D\)/);
   assert.match(read('PROMPTS.md'), /제목 끝의 `강도`는 추천 추론 강도입니다/);
   assert.match(read('PROMPTS.md'), /\*\*2-2\. 계약과 담당 파일 표\*\* · 강도 `extra-high`/);
-  const pt = read('PRETEST.md');
-  assert.match(pt, /\| 17 \| 모델 추론 강도/);
-  assert.match(pt, /`\/model`에서 안내된 선택지 안에서/);
 });
 
 test('설계 보강 7가지: 판별 사례, 대표 입력 흐름, AI 협업·사람 개입, 숨은 선택·정한 사람, 다음 할 일 한 줄, 실행 전 기대, 설명 순서', () => {
@@ -710,7 +704,7 @@ test('운영 보강: 첫 실제 연결 75분, 승인 기준(규칙 변경은 승
   assert.doesNotMatch(pb, /\*\*화면 세션 닫기\*\*|마지막 보고 후 \*\*닫는다\*\*/);
   // 5) 읽기 전용 보조 세션: 정해진 용도, 파일 수정 금지
   assert.match(pb, /\| 보조\(읽기 전용, 선택\) \| 메인이 바쁠 때 원인 조사\(막힘-1·막힘-3\), 교차 점검\(5-3\), ⑥의 대조·모의 구술\(6-2·6-3\) \|/);
-  assert.match(pb, /보조 세션은 동시 세션이 3개 이상 될 때만 씁니다\(`PRETEST\.md` 7번\)/);
+  assert.match(pb, /보조 세션은 필요할 때만 엽니다\. 터미널 탭은 최대 8개/);
   assert.match(sec('보조-1'), /파일을 만들거나 고치지 말고, 서버 실행·설치·무거운 테스트도 하지 마/);
   assert.match(sec('보조-1'), /채우기:/);
   // 6) 질문 종료 기준(개수·시간 상한 없이), 판별 사례는 결과를 바꾸는 선택에만
@@ -720,7 +714,7 @@ test('운영 보강: 첫 실제 연결 75분, 승인 기준(규칙 변경은 승
   assert.match(pb, /\*\*언제 그만 묻나\*\*: 남은 질문이 핵심 결과를 바꾸지 않거나, 가정으로 진행해도 나중에 되돌릴 수 있으면/);
   assert.match(read('templates/TASK.md'), /\*\*결과를 바꾸는 선택\*\*\(계산 규칙, 제약, 동점 처리, 우선순위\)에만 적고/);
   assert.match(read('templates/VERIFY.md'), /손계산이 틀렸으면 원래 값을 지우지 말고 고친 값과 이유를 덧붙인다/);
-  assert.ok(pb.trimEnd().split('\n').length <= 200);
+  assert.ok(pb.trimEnd().split('\n').length <= 240);
 });
 
 test('탐색·최적화: optimize-search 스킬(구조화 → 독립 검증기 → 기본안 → 방법 선택 → 시간 제한 개선 → 같은 조건 비교 → 찾은 최선의 해), 템플릿 두 절, 프롬프트 유형-6~8, 지침·PLAYBOOK 연결', () => {
@@ -870,4 +864,55 @@ test('실험 기록 템플릿: EXPERIMENTS.md(비교 조건, 로그 표, 실험 
   assert.match(read('PROMPTS.md'), /EXPERIMENTS\.md 카드에 가설·변경 계획·조건을 먼저 적어줘/);
   assert.doesNotMatch(read('PROMPTS.md') + read('PLAYBOOK.md'), /탐색 결과 비교|WORK\.md 실험 기록/);
   assert.doesNotMatch(read('instructions/AGENTS.md'), /EXPERIMENTS/, '지침 용량을 늘리지 않는다');
+});
+
+test('④ 실험 중심: 가설 → 실험 → 기록 2~3번, 25분 사이클, 마지막 시작 110분·채택 확정 135분으로 시간이 맞는다', () => {
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  const pb = read('PLAYBOOK.md');
+  const s4 = pb.slice(pb.indexOf('## ④ 실험·완성'), pb.indexOf('### 합류 2'));
+  for (const k of ['**가설 → 실험 → 기록**을 2~3번', '25분 안팎', '4-3(high) **후보**', '4-4(high) **시작 기록 → 실험**', '카드에 **먼저** 적고(끊겨도 남게)', '**복사본이나 버전 플래그에서만**', '**왜 그랬나(내 말로)**', '폐기한 실험도 카드를 남긴다', '4-5(high) **채택 전 점검**', '화면 세션:', '마지막 실험은 **110분까지** 시작한다', '135분까지 검증 안 된 것은 채택하지 않는다(135~145분은 동결 준비)']) assert.ok(s4.includes(k), `④: ${k}`);
+  assert.match(pb, /\| \*\*④ 실험·완성 \(중심\)\*\* \| 75–145분 \|/);
+  assert.match(pb, /`EXPERIMENTS\.md` 최종 요약\(기준선 → 최종, 채택한 것, 채택하지 않은 것과 이유, 한계\)을 채운다/);
+  const pr = read('PROMPTS.md');
+  assert.match(pr, /시간 상한: 25분/);
+  assert.match(pr, /"왜 그랬나"는 근거만 정리해 주면 내 말로 쓰고, 채택\/보류\/폐기는 내가 정할게/);
+  assert.match(read('skills/improve-existing/SKILL.md'), /시간 상한\(예: 25분\)/);
+  // 125분 시작 + 30분 실험은 135분 기준과 모순이므로 남기지 않는다
+  assert.doesNotMatch(pb + pr + read('skills/improve-existing/SKILL.md'), /125분 이후|30분 상한|시간 상한: 30분|예: 30분|가설 1~2개/);
+});
+
+test('이해 점검과 구현 속도: 🔍 세 곳(합류 1 대표 입력·화면 흐름, 채택 직전 이해 대조, 동결 때 다시 따라가기), ⚡는 판단 없는 구현에만, 기록 주체는 응시자', () => {
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  const pb = read('PLAYBOOK.md');
+  const pr = read('PROMPTS.md');
+  const sec = (id) => pr.split(`**${id}.`)[1].split(/\n\*\*(?:\d-\d|막힘-\d+|유형-\d|보조-\d)\./)[0];
+  assert.match(pb, /\*\*⚡\*\*는 빠르게 돌려도 되는 구현이고, 아낀 시간은 \*\*이해 점검\*\*\(🔍\)에 씁니다/);
+  // 🔍 세 곳
+  const m1 = pb.slice(pb.indexOf('### 합류 1'), pb.indexOf('## ④'));
+  assert.match(m1, /🔍 3-5\(medium\) 대표 입력 흐름/);
+  assert.match(m1, /🔍 3-6\(low\) 화면 쪽 흐름:.*\*\*내 말로\*\* 설명 노트 "데이터" 칸에/);
+  const s4 = pb.slice(pb.indexOf('## ④'), pb.indexOf('### 합류 2'));
+  assert.match(s4, /🔍 4-8\(medium\) \*\*채택 직전 이해 대조\*\*:.*\*\*내가 먼저\*\*.*\*\*말하지 못하면 반영하지 않는다\*\*/);
+  assert.ok(s4.indexOf('4-5(high)') < s4.indexOf('4-8(medium)'), '4-5 다음에 4-8');
+  const m2 = pb.slice(pb.indexOf('### 합류 2'), pb.indexOf('## ⑤'));
+  assert.match(m2, /🔍 3-5\(medium\)를 최종 코드로 다시 요청해 대표 입력 흐름을 처음부터 끝까지 다시 따라가고/);
+  assert.match(sec('3-6'), /파일을 수정하지 마\. 화면 행 파일 중 핵심 파일 2개의 역할/);
+  assert.match(sec('3-6'), /"사용자 동작\(버튼·입력\) → API 호출\(경로·요청\) → 응답 → 화면 표시"/);
+  assert.match(sec('4-8'), /정답 문장을 대신 써 주지 말고, 틀린 곳은 확인할 파일·함수 위치만 짚어줘/);
+  assert.match(sec('4-8'), /채우기:/);
+  assert.match(sec('4-8'), /\*\*말하지 못하면 반영하지 않습니다\.\*\*/);
+  // ⚡: 판단 없는 구현에만, 판단 단계에는 없음
+  for (const id of ['3-2', '3-4', '3-3', '4-6']) assert.match(pb, new RegExp(`${id}\\([^)]+\\)⚡`), `${id}에 ⚡`);
+  for (const id of ['1-1', '1-2', '2-1', '2-2', '4-3', '4-4', '4-5', '4-8', '5-2', '막힘-1', '막힘-2']) assert.doesNotMatch(pb, new RegExp(`${id}\\([^)]+\\)⚡`), `${id}에는 ⚡ 금지`);
+  const d = pb.slice(pb.indexOf('## 부록 D'), pb.indexOf('## 부록 E'));
+  assert.match(d, /\*\*구현 속도와 이해 시간\*\*/);
+  assert.match(d, /제공 Codex에 빠른 모드가 있으면 그것을, 없으면 강도를 low~medium으로/);
+  assert.match(d, /\*\*빠르게 돌리지 않는다\.\*\* 빠르게 만들어 고치는 데 시간을 더 쓰면 손해다/);
+  assert.match(d, /아낀 시간은 마지막이 아니라 \*\*구현 바로 뒤의 이해 점검\(🔍\)\*\*에 쓴다/);
+  // 기록 주체와 시점
+  assert.match(read('skills/improve-existing/SKILL.md'), /"왜 그랬는지"는 근거만 정리하고\(해석 문장은 응시자가 쓴다\), 채택 여부는 응시자가 정한다/);
+  assert.doesNotMatch(read('skills/improve-existing/SKILL.md'), /왜 그랬는지, 채택 여부와 이유, 다음 가설을 채운다/);
+  assert.match(read('templates/EXPERIMENTS.md'), /## 최종 요약 \(동결\(145분\) 때 채운다/);
+  assert.match(read('templates/EXPERIMENTS.md'), /\*\*이해 대조\*\*: 반영 전에 내가 먼저 말한/);
+  assert.match(pb, /첫 실험은 85분 시작이 목표\(③의 연결이 늦으면 연결이 먼저\)/);
 });
