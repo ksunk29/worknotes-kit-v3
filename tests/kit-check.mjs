@@ -212,6 +212,15 @@ test('지침: 미확인 기준은 잠정 구현+표시, 필드를 채우려고 �
   }
 });
 
+test('질문·답변은 표 하나가 원본: 스킬·템플릿·프롬프트 1-5에 중복 금지 규칙', () => {
+  const rd = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  assert.match(rd('skills/work-intake/SKILL.md'), /이 표에 한 번만 적고 다른 절에는 `Q번호`로만 잇는다/);
+  assert.match(rd('templates/TASK.md'), /답변의 원본은 이 표 하나다/);
+  const p = rd('PROMPTS.md');
+  const i = p.indexOf('**1-5. 미확인 정리');
+  assert.ok(i >= 0 && /질문·답변 표만 원본/.test(p.slice(i, i + 700)), '1-5 프롬프트에 정리 지시');
+});
+
 test('work-intake: 문서는 끝까지, 데이터는 샘플+이상 징후 집계, 필요한 파일은 읽기만', () => {
   const w = fs.readFileSync(path.join(ROOT, 'skills/work-intake/SKILL.md'), 'utf8');
   assert.match(w, /\*\*끝까지\*\* 읽는다/);
