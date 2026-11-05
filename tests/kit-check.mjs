@@ -434,7 +434,7 @@ test('v2 스킬·템플릿: 질문 분류, 처음부터의 화면 상태, 로그
   assert.match(read('templates/TASK.md'), /## 기준선/);
   assert.match(read('templates/TASK.md'), /\| # \| 분류 \|/);
   const wk = read('templates/WORK.md');
-  for (const k of ['## 계약', '## 담당 파일·세션', '## 실험 기록']) assert.ok(wk.includes(k), `WORK.md: ${k}`);
+  for (const k of ['## 계약', '## 담당 파일·세션', '## 실험 (개선·탐색 과제일 때)']) assert.ok(wk.includes(k), `WORK.md: ${k}`);
   assert.match(read('templates/VERIFY.md'), /자동화 확인/);
 });
 
@@ -579,10 +579,10 @@ test('세션 끊김 대비: 막힘-5 복구 프롬프트, 막혔을 때 행, PRE
   const pr = read('PROMPTS.md');
   assert.match(pb, /\| 세션이 끊김 \|.*`codex resume`.*막힘-5/);
   assert.match(read('PRETEST.md'), /`codex resume`\(또는 `--last`\)으로 이전 대화가 이어지는가/);
-  assert.match(pb, /실험을 \*\*시작할 때\*\* `WORK\.md` 실험 기록에 한 줄/);
+  assert.match(pb, /실험을 \*\*시작할 때\*\* `EXPERIMENTS\.md` 카드에 가설·변경 계획을 먼저 적는다/);
   assert.match(pr, /\*\*막힘-5\. 세션이 끊겨 새로 시작했을 때/);
   assert.match(pr, /이전 대화는 없다고 가정하고 파일 기록만으로 상태를 복구해줘\. 코드는 아직 고치지 마\./);
-  assert.match(pr, /AGENTS\.md, TASK\.md, WORK\.md, VERIFY\.md 를 읽고/);
+  assert.match(pr, /AGENTS\.md, TASK\.md, WORK\.md, VERIFY\.md, EXPERIMENTS\.md 를 읽고/);
 });
 
 test('PRETEST: 사전 체험 항목은 PRETEST.md 한 곳에만 있고, 다른 문서는 가리키기만 하며, 폴백·프롬프트 번호가 실재한다', () => {
@@ -729,14 +729,14 @@ test('탐색·최적화: optimize-search 스킬(구조화 → 독립 검증기 �
   for (const k of ['결정 변수와 그 유형(이산/연속/혼합), 필수 제약, 선호 조건', '유효해를 못 찾았을 때와 해가 없을 때의 처리', '**독립 검증기를 먼저 만든다.**', '탐색기의 점수나 내부 상태를 쓰지 않는다', '빈 입력, 불가능한 조건, 경계값', '**기본안**', '완전탐색·백트래킹', '분기 한정', '탐욕', '지역탐색·다중 시작', '정수계획·제약계획', 'BFS·다익스트라·A*', '난수 시드를 기록한다', '작은 입력에서는 완전탐색 결과와 비교', '"찾은 최선의 해"']) assert.ok(sk.includes(k), `optimize-search: ${k}`);
   // 각 단계가 순서대로: 구조 → 검증기 → 기본안 → 방법 → 개선 → 비교 → 표현
   let at = -1;
-  for (const k of ['탐색·최적화 문제 구조', '독립 검증기를 먼저', '**기본안**', '방법은 변수 유형·입력 규모', '개선 틀', '탐색 결과 비교', '찾은 최선의 해']) { const i = sk.indexOf(k); assert.ok(i > at, `순서: ${k}`); at = i; }
+  for (const k of ['탐색·최적화 문제 구조', '독립 검증기를 먼저', '**기본안**', '방법은 변수 유형·입력 규모', '개선 틀', '`EXPERIMENTS.md`에 적는다', '찾은 최선의 해']) { const i = sk.indexOf(k); assert.ok(i > at, `순서: ${k}`); at = i; }
   assert.match(sk, /담당자 답 없이 정하지 않고 미확인·설계 선택으로 둔다/);
   const t = read('templates/TASK.md');
   assert.match(t, /## 탐색·최적화 문제 구조 \(여러 선택지 중 제약을 만족하는 좋은 조합을 찾는 과제일 때만\)/);
   for (const k of ['결정 변수와 유형', '필수 제약', '선호 조건', '평가 목표', '입력 규모', '실행 제한', '유효해를 못 찾았을 때 / 해가 없을 때']) assert.ok(t.includes(`| ${k} |`), `TASK.md: ${k}`);
   const w = read('templates/WORK.md');
-  assert.match(w, /## 탐색 결과 비교 \(탐색·최적화 과제일 때\)/);
-  assert.match(w, /\| 방법 \| 상태·제약 위반 수 \| 목적값 \| 기본안 대비 \| 실행 시간\(제한 안\?\) \| 입력 버전·설정·시드 \| 선택 이유·한계 \|/);
+  assert.match(w, /가설과 실험 결과는 `EXPERIMENTS\.md`에 쓴다/);
+  assert.match(read('templates/EXPERIMENTS.md'), /유효해 미발견\(시간 안에 못 찾음\) \/ 해 없음\(불가능을 증명한 경우만\)/);
   const pr = read('PROMPTS.md');
   for (const id of ['유형-6', '유형-7', '유형-8']) assert.match(pr, new RegExp(`\\*\\*${id}\\. 탐색·최적화`), id);
   assert.match(pr, /먼저 입력 규모와 제약 구조를 근거로 방법 후보 2개와 추천을 보여주고 멈춰/);
@@ -787,7 +787,7 @@ test('탐색 보강: 유효해 미발견과 해 없음 구분, 결과 파일 저
   assert.match(sk, /못 찾은 것을 "해 없음"이라 쓰기/);
   assert.match(sec('유형-7'), /"해 없음"으로 끝내지 말고 순서를 바꾼 재시작·백트래킹·제약 풀이/);
   assert.match(sec('유형-7'), /불가능을 증명하지 못했으면 "유효해 미발견"으로 보고해/);
-  assert.match(read('templates/WORK.md'), /\*\*유효해 미발견\*\*\(시간 안에 못 찾음\) \/ \*\*해 없음\*\*\(불가능을 증명한 경우만\)/);
+  assert.match(read('templates/EXPERIMENTS.md'), /유효해 미발견\(시간 안에 못 찾음\) \/ 해 없음\(불가능을 증명한 경우만\)/);
   // 2) 결과 파일 저장과 시간 여유
   assert.match(sk, /검증기를 통과하면 \*\*바로 결과 파일로 저장\*\*한다/);
   assert.match(sk, /더 나은 유효해를 찾으면 검증기를 통과한 것만 결과 파일로 저장한다\(강제 종료·오류에도 남게\)/);
@@ -849,4 +849,25 @@ test('새로 만드는 과제: 2-1을 건너뛰고 합류 1에서 유형-9로 �
   assert.match(pb, /2-1\(high\) 기준선:.*기존 것이 없으면 건너뛰고 합류 1에서 유형-9/);
   assert.match(pb, /새로 만드는 과제\(기존 엔진·시스템 없음\): 2-1은 건너뛰고, fixture는 요구에서 손으로 만든 예시, 3-1은 가장 단순하게 맞는 엔진을 새로 만든다\. 합류 1에서 유형-9\(high\)로 \*\*그 단순 버전을 내 기준선\*\*으로 기록한다/);
   assert.match(pb, /계산할 엔진이 없는 조회·등록 서비스면 메인은 데이터 모델·API·권한, 화면 세션은 화면을 맡고 계약에 DB 스키마를 더한다/);
+});
+
+test('실험 기록 템플릿: EXPERIMENTS.md(비교 조건, 로그 표, 실험 카드, 최종 요약)와 스킬·WORK.md·안내 문서 연결', () => {
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  const ex = read('templates/EXPERIMENTS.md');
+  for (const k of ['## 비교 조건 (모든 실험에서 같게)', '## 실험 로그', '## 실험 카드', '## 최종 요약', '입력(파일·버전)', '시간 제한 / 난수 시드', '기준선 값']) assert.ok(ex.includes(k), `EXPERIMENTS.md: ${k}`);
+  assert.match(ex, /\| # \| 가설\(한 문장\) \| 변경 요지 \| 지표 전 → 후 \| 나빠진 지표·요구 위반 \| 시간 \| 결정 \|/);
+  for (const k of ['**가설**', '**변경**', '**조건**', '**결과**', '**나빠진 것**', '**왜 그랬나(내 말로)**', '**판별 사례**', '**숨은 선택**', '**결정**', '**다음 가설**']) assert.ok(ex.includes(k), `실험 카드: ${k}`);
+  assert.match(ex, /카드는 \*\*시작할 때\*\* 가설·변경 계획·조건부터 쓰고\(끊겨도 남게\)/);
+  assert.match(ex, /최적성을 증명하지 못했으면 "찾은 최선의 해"/);
+  // WORK.md에는 실험 표를 두지 않고, 스킬은 EXPERIMENTS.md를 가리킨다
+  const wk = read('templates/WORK.md');
+  assert.doesNotMatch(wk, /## 실험 기록|## 탐색 결과 비교/);
+  assert.match(read('skills/improve-existing/SKILL.md'), /실험은 가설마다 `EXPERIMENTS\.md` 카드에 쓴다\. 시작할 때 가설·변경 계획·조건을 먼저 적고/);
+  assert.match(read('skills/optimize-search/SKILL.md'), /기본안과 개선안을 `EXPERIMENTS\.md`에 적는다\(실험마다 카드\)/);
+  // 사람용 문서: 복사 목록·구성표·프롬프트가 같은 위치를 가리킨다
+  assert.match(read('PLAYBOOK.md'), /\(개선·탐색 과제면 `EXPERIMENTS\.md`도\)/);
+  assert.match(read('README.md'), /`EXPERIMENTS\.md`\(개선·탐색 실험 기록/);
+  assert.match(read('PROMPTS.md'), /EXPERIMENTS\.md 카드에 가설·변경 계획·조건을 먼저 적어줘/);
+  assert.doesNotMatch(read('PROMPTS.md') + read('PLAYBOOK.md'), /탐색 결과 비교|WORK\.md 실험 기록/);
+  assert.doesNotMatch(read('instructions/AGENTS.md'), /EXPERIMENTS/, '지침 용량을 늘리지 않는다');
 });
