@@ -212,6 +212,20 @@ test('지침: 미확인 기준은 잠정 구현+표시, 필드를 채우려고 �
   }
 });
 
+test('③ 순서표: 알림은 사람이 3-4를 붙여넣는 것, 문서 뼈대 3-7, 메인 3-3은 확정 요구만·기본안 먼저', () => {
+  const rd = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  const pb = rd('PLAYBOOK.md');
+  assert.match(pb, /\*\*알림은 내가 한다\*\*/);
+  assert.match(pb, /세션끼리는 자동으로 연락하지 않습니다/);
+  assert.match(pb, /3-7\(low\) 제출 문서 뼈대/);
+  assert.match(pb, /확정되어 판단이 필요 없는 것/);
+  assert.match(pb, /1-4로 선택지를 받아 \*\*내가 정합니다\*\*/);
+  assert.match(pb, /필수 규칙을 모두 지키는 기본안이 아직 없으면 3-3이 먼저/);
+  const pr = rd('PROMPTS.md');
+  assert.match(pr, /\*\*3-7\. 제출 문서 뼈대\*\*/);
+  assert.match(pr, /쓰는 때: 연결\(3-4\) 뒤 남은 \*\*확정된 요구\*\*/);
+});
+
 test('질문·답변은 표 하나가 원본: 스킬·템플릿·프롬프트 1-5에 중복 금지 규칙', () => {
   const rd = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
   assert.match(rd('skills/work-intake/SKILL.md'), /이 표에 한 번만 적고 다른 절에는 `Q번호`로만 잇는다/);
